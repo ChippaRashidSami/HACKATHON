@@ -1,0 +1,12 @@
+graph TD
+    A[Gazebo Physics Engine] --> B[ROS 2 Communication Layer]
+    B --> C[Unity Rendering Engine]
+    D[Sensor Simulation] --> B
+    E[Robot Model] --> A
+    E --> C
+    F[User Interface] --> C
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#9ff,stroke:#333,stroke-width:2px
+    style C fill:#9f9,stroke:#333,stroke-width:2px
+    style D fill:#ff9,stroke:#333,stroke-width:2px

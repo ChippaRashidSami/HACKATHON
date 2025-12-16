@@ -1,0 +1,256 @@
+# Book API Contract
+
+**Version**: 1.0
+**Date**: 2025-12-16
+**Feature**: Complete Book Structure
+
+## Overview
+This API contract defines the interfaces for the Physical AI & Humanoid Robotics Book, including all four modules. The API provides access to book content, user progress tracking, and interactive features.
+
+## Base Path
+All endpoints are relative to `http://book.local/api/v1`
+
+## Content Type
+All requests and responses use JSON format with UTF-8 encoding.
+
+## Endpoints
+
+### 1. Get Module Content
+**GET** `/modules/{module_id}`
+
+Retrieves content for a specific module.
+
+#### Path Parameters
+- `module_id`: string, identifier for the module (e.g., "module-1-ros2", "module-2-digital-twin", "module-3-isaac", "module-4-vla")
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}` (optional for public content)
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "module_id": "string",
+  "title": "string, module title",
+  "description": "string, module description",
+  "chapters": [
+    {
+      "chapter_id": "string",
+      "title": "string",
+      "content_url": "string, URL to the chapter content",
+      "estimated_reading_time": "number, in minutes",
+      "prerequisites": ["string, list of prerequisite concepts"]
+    }
+  ],
+  "learning_objectives": ["string, list of module objectives"],
+  "next_module": "string, ID of the next module in sequence"
+}
+```
+
+### 2. Get Chapter Content
+**GET** `/modules/{module_id}/chapters/{chapter_id}`
+
+Retrieves content for a specific chapter within a module.
+
+#### Path Parameters
+- `module_id`: string, identifier for the module
+- `chapter_id`: string, identifier for the chapter
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}` (optional for public content)
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "chapter_id": "string",
+  "module_id": "string",
+  "title": "string",
+  "content": "string, chapter content in Markdown format",
+  "learning_objectives": ["string, list of chapter objectives"],
+  "diagrams": [
+    {
+      "id": "string",
+      "title": "string",
+      "url": "string, path to diagram image"
+    }
+  ],
+  "exercises": [
+    {
+      "id": "string",
+      "title": "string",
+      "description": "string",
+      "type": "string, e.g., 'multiple-choice', 'simulation', 'code'"
+    }
+  ],
+  "estimated_reading_time": "number, in minutes",
+  "previous_chapter": "string, ID of previous chapter",
+  "next_chapter": "string, ID of next chapter"
+}
+```
+
+### 3. Track User Progress
+**POST** `/progress`
+
+Updates the user's progress through the book.
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}`
+  - `Content-Type: application/json`
+
+- **Body**:
+```json
+{
+  "user_id": "string, unique user identifier",
+  "module_id": "string",
+  "chapter_id": "string",
+  "status": "string, e.g., 'started', 'in_progress', 'completed'",
+  "time_spent": "number, time spent in seconds",
+  "completion_percentage": "number, 0-100"
+}
+```
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "progress_id": "string, unique progress record identifier",
+  "user_id": "string",
+  "module_id": "string",
+  "chapter_id": "string",
+  "status": "string",
+  "updated_at": "string, ISO 8601 timestamp",
+  "overall_completion": {
+    "percentage": "number, overall completion percentage",
+    "completed_modules": ["string, list of completed module IDs"],
+    "completed_chapters": ["string, list of completed chapter IDs"]
+  }
+}
+```
+
+### 4. Get User Progress
+**GET** `/progress/{user_id}`
+
+Retrieves a user's progress through the book.
+
+#### Path Parameters
+- `user_id`: string, unique user identifier
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}`
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "user_id": "string",
+  "progress_summary": {
+    "completed_modules": "number",
+    "total_modules": "number",
+    "completed_chapters": "number",
+    "total_chapters": "number",
+    "overall_completion": "number, percentage",
+    "time_spent": "number, in seconds"
+  },
+  "module_progress": [
+    {
+      "module_id": "string",
+      "title": "string",
+      "status": "string, e.g., 'not_started', 'in_progress', 'completed'",
+      "completion_percentage": "number, 0-100",
+      "chapters_completed": "number",
+      "total_chapters": "number",
+      "last_accessed": "string, ISO 8601 timestamp"
+    }
+  ],
+  "recommended_next": {
+    "module_id": "string",
+    "chapter_id": "string",
+    "title": "string"
+  }
+}
+```
+
+### 5. Get Interactive Exercise
+**GET** `/exercises/{exercise_id}`
+
+Retrieves an interactive exercise for a chapter.
+
+#### Path Parameters
+- `exercise_id`: string, unique identifier for the exercise
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}` (optional for public exercises)
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "exercise_id": "string",
+  "type": "string, e.g., 'multiple-choice', 'simulation', 'code'",
+  "title": "string",
+  "description": "string",
+  "parameters": "object, exercise-specific parameters",
+  "expected_outcomes": ["string, list of learning outcomes"],
+  "hints": ["string, list of hints for the user"],
+  "solution": "object, exercise solution (may be partially obscured)"
+}
+```
+
+### 6. Submit Exercise Solution
+**POST** `/exercises/{exercise_id}/submit`
+
+Submits a solution for an interactive exercise.
+
+#### Path Parameters
+- `exercise_id`: string, unique identifier for the exercise
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}`
+  - `Content-Type: application/json`
+
+- **Body**:
+```json
+{
+  "user_id": "string",
+  "solution": "object, user's solution in exercise-specific format",
+  "time_taken": "number, time taken in seconds"
+}
+```
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "exercise_id": "string",
+  "user_id": "string",
+  "is_correct": "boolean",
+  "feedback": "string, detailed feedback on the solution",
+  "score": "number, 0-100",
+  "attempts": "number, number of attempts made",
+  "completed_at": "string, ISO 8601 timestamp"
+}
+```
+
+## Authentication
+Most endpoints require a valid Bearer token in the Authorization header. Public content (modules and chapters) can be accessed without authentication.
+
+## Error Codes
+- `400 Bad Request`: Invalid request format or parameters
+- `401 Unauthorized`: Missing or invalid authentication
+- `404 Not Found`: Requested resource does not exist
+- `429 Too Many Requests`: Rate limit exceeded
+- `500 Internal Server Error`: An unexpected server error occurred
+- `503 Service Unavailable`: The book service is temporarily unavailable
+
+## Rate Limits
+API requests are limited to 1000 requests per hour per authenticated user. Exceeding this limit will result in a `429 Too Many Requests` response.
+
+## Versioning
+This is version 1 of the API. Breaking changes will result in a major version increment (e.g., v2). Minor additions will be backward-compatible.

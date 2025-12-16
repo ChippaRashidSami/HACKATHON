@@ -1,0 +1,18 @@
+graph TB
+    subgraph "Digital Twin System"
+        A[Gazebo Physics Simulation] 
+        B[Unity High-Fidelity Rendering]
+        C[ROS 2 Communication Layer]
+    end
+    
+    A <--> C
+    B <--> C
+    
+    D[User Controls] --> A
+    D --> B
+    A --> E[Sensor Data]
+    B --> F[Visual Feedback]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#9ff,stroke:#333,stroke-width:2px
+    style C fill:#9f9,stroke:#333,stroke-width:2px

@@ -1,0 +1,7 @@
+{
+  // This file does not exist without docusaurus preset
+  "extends": "@docusaurus/tsconfig",
+  "compilerOptions": {
+    "baseUrl": "."
+  }
+}

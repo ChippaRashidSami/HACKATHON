@@ -1,0 +1,193 @@
+# VLA System API Contract
+
+**Version**: 1.0
+**Date**: 2025-12-16
+**Feature**: Vision-Language-Action (VLA) Systems
+
+## Overview
+This API contract defines the interfaces for the Vision-Language-Action (VLA) system that connects perception, language, and action in humanoid robots. The API enables voice commands to be converted to robotic actions through LLM-based cognitive planning.
+
+## Base Path
+All endpoints are relative to `http://vla-system.local/api/v1`
+
+## Content Type
+All requests and responses use JSON format with UTF-8 encoding.
+
+## Endpoints
+
+### 1. Process Voice Command
+**POST** `/voice/process`
+
+Receives voice input and processes it through the VLA pipeline.
+
+#### Request
+- **Headers**:
+  - `Content-Type: audio/wav` (for audio data) or `application/json` (for text)
+  - `Authorization: Bearer {token}`
+
+- **Body** (when Content-Type is application/json):
+```json
+{
+  "voice_command": "string, the transcribed voice command",
+  "robot_id": "string, identifier for the target robot",
+  "context": "object, optional environmental context"
+}
+```
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "request_id": "string, unique identifier for the request",
+  "status": "string, processing status (e.g., 'completed', 'in_progress', 'error')",
+  "action_plan": {
+    "description": "string, human-readable description of planned actions",
+    "steps": [
+      {
+        "step_id": "string",
+        "action_type": "string, e.g., 'move', 'grasp', 'speak', 'perceive'",
+        "parameters": "object, specific to action type",
+        "confidence": "number, 0.0 to 1.0"
+      }
+    ],
+    "execution_time_estimate": "number, estimated time in seconds",
+    "safety_validation": "boolean, whether actions passed safety checks"
+  },
+  "cognitive_reasoning": "string, explanation of the LLM's reasoning"
+}
+```
+
+- **Error (400, 401, 500)**:
+```json
+{
+  "error": {
+    "code": "string, error code",
+    "message": "string, human-readable error message",
+    "details": "object, additional error details"
+  }
+}
+```
+
+### 2. Get Action Plan
+**GET** `/plan/{request_id}`
+
+Retrieves the status and details of a previously submitted action plan.
+
+#### Path Parameters
+- `request_id`: string, the unique identifier returned from the voice processing endpoint
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}`
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "request_id": "string",
+  "status": "string, e.g., 'completed', 'in_progress', 'error', 'cancelled'",
+  "action_plan": {
+    "description": "string",
+    "steps": [
+      {
+        "step_id": "string",
+        "action_type": "string",
+        "parameters": "object",
+        "confidence": "number",
+        "completed": "boolean",
+        "completion_time": "string, ISO 8601 timestamp (if completed)"
+      }
+    ],
+    "execution_time_estimate": "number",
+    "safety_validation": "boolean"
+  },
+  "cognitive_reasoning": "string",
+  "created_at": "string, ISO 8601 timestamp",
+  "updated_at": "string, ISO 8601 timestamp"
+}
+```
+
+### 3. Execute Action Plan
+**POST** `/plan/{request_id}/execute`
+
+Executes a planned action sequence on the robot.
+
+#### Path Parameters
+- `request_id`: string, the unique identifier for the plan to execute
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}`
+  - `Content-Type: application/json`
+
+- **Body**:
+```json
+{
+  "robot_id": "string, identifier for the target robot",
+  "execution_options": {
+    "simulation_mode": "boolean, whether to run in simulation",
+    "max_execution_time": "number, maximum time to allow in seconds",
+    "safety_override": "boolean, whether to bypass safety checks"
+  }
+}
+```
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "request_id": "string",
+  "execution_id": "string, unique identifier for this execution",
+  "status": "string, e.g., 'executing', 'completed', 'error'",
+  "robot_response": "string, robot's response to the actions",
+  "execution_log": [
+    {
+      "timestamp": "string, ISO 8601",
+      "step_id": "string",
+      "status": "string, e.g., 'started', 'completed', 'failed'",
+      "details": "string, additional execution details"
+    }
+  ],
+  "completed_at": "string, ISO 8601 timestamp (if completed)"
+}
+```
+
+### 4. Cancel Execution
+**POST** `/execution/{execution_id}/cancel`
+
+Cancels an in-progress execution.
+
+#### Path Parameters
+- `execution_id`: string, the unique identifier for the execution to cancel
+
+#### Request
+- **Headers**:
+  - `Authorization: Bearer {token}`
+
+#### Response
+- **Success (200)**:
+```json
+{
+  "execution_id": "string",
+  "status": "string, e.g., 'cancelled', 'already_completed'",
+  "cancellation_reason": "string, reason for cancellation",
+  "final_log": "array, execution log up to cancellation point"
+}
+```
+
+## Authentication
+All endpoints require a valid Bearer token in the Authorization header, except for health checks.
+
+## Error Codes
+- `400 Bad Request`: Invalid request format or parameters
+- `401 Unauthorized`: Missing or invalid authentication
+- `404 Not Found`: Requested resource does not exist
+- `429 Too Many Requests`: Rate limit exceeded
+- `500 Internal Server Error`: An unexpected server error occurred
+- `503 Service Unavailable`: The VLA system is temporarily unavailable
+
+## Rate Limits
+API requests are limited to 100 requests per minute per authenticated user. Exceeding this limit will result in a `429 Too Many Requests` response.
+
+## Versioning
+This is version 1 of the API. Breaking changes will result in a major version increment (e.g., v2). Minor additions will be backward-compatible.
