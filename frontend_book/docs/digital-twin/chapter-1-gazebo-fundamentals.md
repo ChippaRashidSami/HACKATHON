@@ -32,13 +32,13 @@ World files define the environment in which your robot operates. They specify:
 
 ### Creating a Basic World File
 
-In our [basic-world.world](../src/sim-examples/gazebo-examples/world-files/basic-world.world) file, we define:
+In our [basic-world.world](/downloads/gazebo-examples/world-files/basic-world.world) file, we define:
 
 1. The physics engine with 1ms step size and Earth gravity
 2. A ground plane and sun for lighting
 3. A simple test box to verify physics simulation
 
-For a more detailed example, see our [detailed-physics-world.world](../src/sim-examples/gazebo-examples/world-files/detailed-physics-world.world) which demonstrates:
+For a more detailed example, see our [detailed-physics-world.world](/downloads/gazebo-examples/world-files/detailed-physics-world.world) which demonstrates:
 1. More advanced physics engine parameters
 2. Different collision properties for objects
 3. Options for tuning gravity and friction
@@ -53,7 +53,7 @@ The physics engine is configured with several important parameters:
 
 ## Spawning Robots
 
-Robots in Gazebo are defined as models with links and joints. Our [simple humanoid](../src/sim-examples/gazebo-examples/humanoid-models/simple-humanoid.urdf) example demonstrates:
+Robots in Gazebo are defined as models with links and joints. Our [simple humanoid](/downloads/gazebo-examples/humanoid-models/simple-humanoid.urdf) example demonstrates:
 
 - A base link representing the torso
 - Fixed joints connecting limbs
