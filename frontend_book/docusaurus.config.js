@@ -8,10 +8,10 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://your-username.github.io',
+  url: 'https://hackathon-qecw.vercel.app/',
   // Set the /<base>/ pathname under which your site is served
   // For GitHub Pages: https://<username>.github.io/<repo-name>/
-  baseUrl: '/nativebook/',
+  baseUrl: '/',
 
   // GitHub pages deployment config.
   organizationName: 'your-organization', 
